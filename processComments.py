@@ -337,8 +337,17 @@ def ComputeCommentConversationalRelevance():
 				comment.append(comment_originality)
 				fileWriter.writerow(comment)
 
-#ComputeVocabulary()
+startTime = datetime.now()
+ComputeVocabulary()
 
 # Compute similarities requires that the vocab file already by computed
-#ComputeCommentArticleRelevance()
+ComputeCommentArticleRelevance()
 ComputeCommentConversationalRelevance()
+
+endTime = datetime.now()
+
+print "start Time is " + str(startTime)
+print "end Time is " + str(endTime)
+print "Duration is " + str(endTime - startTime)
+
+
