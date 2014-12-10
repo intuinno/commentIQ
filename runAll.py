@@ -1,4 +1,6 @@
 __author__ = 'intuinno'
+
+
 from processComments import *
 from util import *
 import os
@@ -7,7 +9,7 @@ import os
 
 startTime = datetime.now()
 
-makeSmallDataset("data/comments_study.csv", "data/articles.csv", 5)
+makeCrossValidationDataset("data/comments_study.csv", "data/articles.csv")
 
 ComputeVocabulary("smallData/comments_study.csv","smallData/vocab.csv")
 # Compute similarities requires that the vocab file already by computed
@@ -15,10 +17,10 @@ ComputeVocabulary("smallData/comments_study.csv","smallData/vocab.csv")
 ComputeCommentArticleRelevance("smallData/vocab.csv","smallData/comments_study.csv","smallData/articles.csv", "smallData/comment_study_article_relevance.csv")
 ComputeCommentConversationalRelevance("smallData/vocab.csv","smallData/comments_study.csv", "smallData/comment_study_comment_conversational_relevance.csv")
 
-makeVWInputDataset("smallData/comments_study.csv", "smallData/comment_study_article_relevance.csv", "smallData/comment_study_comment_conversational_relevance.csv", "smallData/input.vw")
+print makeVWInputDataset("smallData/comments_study.csv", "smallData/comment_study_article_relevance.csv", "smallData/comment_study_comment_conversational_relevance.csv")
 
 
-cmd = 'vw -d smallData/input.vw -f  prediction.vw -p smallData/prediction.vw --binary '
+cmd = 'vw -d smallData/vwInputFile -f prediction.vw'
 
 
 p = os.system(cmd)

@@ -167,7 +167,7 @@ def ComputeVocabulary(comment_filename, vocab_filename):
 	for c in comments:
 		n = n + 1
 		if n % 100 == 0 :
-			print n
+			print "vocabulary : " + str(n)
 		ct = CleanAndTokenize(comments[c][2].decode("utf8"))
 		ct = [w for w in ct if w not in stopword_list]
 		stemmed_tokens = [porter.stem(t) for t in ct]
@@ -233,8 +233,9 @@ def ComputeCommentArticleRelevance(vocabFilename, commentsFilename, articleFilen
 	# fileWriter = csv.writer(open("data/comment_study_article_relevance.csv", "w+"),delimiter=",")
 	fileWriter = csv.writer(open(articleRelevanceFilename, "w+"),delimiter=",")
 	# for each article and the comments on each
+	commentLength = len(comments.items())
 	for (j, (commentID, comment)) in enumerate(comments.items()):
-		print "comment: " + str(j)
+		print "Computing Article Relevance for comment: " + str(j) + " " + str(commentLength)
 		ct = CleanAndTokenize(comment[2].decode("utf8"))
 		ct = [w for w in ct if w not in stopword_list]
 		comment_stemmed_tokens = [porter.stem(t) for t in ct]
@@ -296,7 +297,7 @@ def ComputeCommentConversationalRelevance(vocabFilename, commentsFilename, conve
 	fileWriter = csv.writer(open(conversationalRelevanceFilename, "w+"),delimiter=",")
 	nc = 0
 	for a in articles:
-		print a
+		print "Conversational Relevance for " +  a
 		comments = articles[a]
 		if len(comments) >= 10:
 			# sort by time 

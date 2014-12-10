@@ -81,10 +81,10 @@ def makeCrossValidationDataset(commentFile, articleFile):
                 else:
                     trainWriterList[i].writerow(row)
 
-def makeSmallDataset(commentFile, articleFile):
+def makeSmallDataset(commentFile, articleFile, numArticle):
 
     #Definition of constants
-    constArticleNumber = 100
+    constArticleNumber = numArticle
 
     #Make sure 'smallData' directory exists
     if not os.path.isdir('smallData'):
@@ -121,7 +121,7 @@ def makeSmallDataset(commentFile, articleFile):
         elif row[10] in articleURLDictionary:
             smallCommentWriter.writerow(row)
 
-def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanceFile):
+def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanceFile, vwInputfile):
 
     csvFile = open(commentFile, 'Ur')
     csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"')
@@ -151,7 +151,7 @@ def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanc
     for row in csvReader:
         comments[row[0]]['conversationalRelevance'] = row[13]
 
-    vwInputFileName = "smallData/vwInputFile"
+    vwInputFileName =vwInputfile
     vwInputFileWriter = csv.writer(open(vwInputFileName, "w+"),delimiter=" ")
 
     for (commentID, comment) in comments.items():
@@ -205,4 +205,4 @@ def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanc
 
 
 # makeCrossValidationDataset("data/comments_study.csv", "data/articles.csv")
-makeSmallDataset("data/comments_study.csv", "data/articles.csv")
+# makeSmallDataset("data/comments_study.csv", "data/articles.csv",10 )
