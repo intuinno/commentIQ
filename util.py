@@ -81,36 +81,48 @@ def makeCrossValidationDataset(commentFile, articleFile):
                 else:
                     trainWriterList[i].writerow(row)
 
+def makeSmallDataset(commentFile, articleFile):
 
-                # # commentID,commentTitle,commentBody,approveDate,recommendationCount,display_name,location,commentQuestion,commentSequence,status,articleURL,editorsSelection,in_study
-	# csvFile = open("data/comments_study.csv", 'Ur')
-	# csvReader = csv.reader(csvFile, delimiter=',', quotechar='"')
-	# comments  = {}
-	# for row in csvReader:
-	# 	if csvReader.line_num > 1:
-	# 		comments[row[0]] = row
-    #
-	# # The number of documents is the number of comments
-	# nDocuments = len(comments)
-    #
-    # csvFile = open("data/articles.csv", 'Ur')
-	# csvReader = csv.reader(csvFile, delimiter=',', quotechar='"')
-	# articles  = {}
-	# for row in csvReader:
-	# 	if csvReader.line_num > 1:
-	# 		# key on the article URL
-	# 		articles[row[3]] = row
-    #
-	# # output file will have have a final row that is the comment-article relevance
-	# fileWriter = csv.writer(open("data/comment_study_article_relevance.csv", "w+"),delimiter=",")
-	# # for each article and the comments on each
-	# for (j, (commentID, comment)) in enumerate(comments.items()):
-	# 	print "comment: " + str(j)
-	# 	ct = CleanAndTokenize(comment[2].decode("utf8"))
-	# 	ct = [w for w in ct if w not in stopword_list]
-	# 	comment_stemmed_tokens = [porter.stem(t) for t in ct]
-	# 	comment_stemmed_tokens_fd  = FreqDist(comment_stemmed_tokens)
-    #
+    #Definition of constants
+    constArticleNumber = 5
+
+    #Make sure 'smallData' directory exists
+    if not os.path.isdir('smallData'):
+        os.makedirs('smallData')
+
+    # Read the articleFile
+    csvFile = open(articleFile, 'Ur')
+    csvReader = csv.reader(csvFile, delimiter=',', quotechar='"')
+
+    smallArticleFileName = "smallData/articles.csv"
+    smallArticleWriter = csv.writer(open(smallArticleFileName, "w+"),delimiter=",")
+
+	# Read each line and process it
+    articleURLDictionary = {}
+    count = 0
+    for row in csvReader:
+        if csvReader.line_num == 1:
+            smallArticleWriter.writerow(row)
+        elif count < constArticleNumber:
+            smallArticleWriter.writerow(row)
+            articleURLDictionary[row[3]] = True
+            count += 1
+
+    smallCommentFileName = "smallData/comments_study.csv"
+    smallCommentWriter = csv.writer(open(smallCommentFileName, "w+"),delimiter=",")
+
+    # Read the commentFile
+    csvFile = open(commentFile, 'Ur')
+    csvReader = csv.reader(csvFile, delimiter=',', quotechar='"')
+
+    for row in csvReader:
+        if csvReader.line_num == 1:
+            smallCommentWriter.writerow(row)
+        elif row[10] in articleURLDictionary:
+            smallCommentWriter.writerow(row)
 
 
-makeCrossValidationDataset("data/comments_study.csv", "data/articles.csv")
+
+
+# makeCrossValidationDataset("data/comments_study.csv", "data/articles.csv")
+makeSmallDataset("data/comments_study.csv", "data/articles.csv")
