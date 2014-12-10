@@ -12,6 +12,7 @@ from datetime import date
 from datetime import datetime
 from datetime import timedelta
 import calendar
+import operator
 
 
 stopword_list = stopwords.words('english')
@@ -186,7 +187,7 @@ def ComputeVocabulary(comment_filename, vocab_filename):
 		# print str(i) + " " + str(key) + " " + str(fd[key])
 		if fd[key] < 10:
 			unigram_cutoff = i - 1
-			# break
+			break
 	print "unigram cutoff: " + str(unigram_cutoff)
 	word_features.extend(fd.keys()[:unigram_cutoff])
 
@@ -196,10 +197,10 @@ def ComputeVocabulary(comment_filename, vocab_filename):
 		fileWriter.writerow(row)
 
 
-
-def ComputeCommentArticleRelevance():
+def ComputeCommentArticleRelevance(vocabFilename, commentsFilename, articleFilename, articleRelevanceFilename):
 	# Read in the vocabulary and the document frequencies 
-	csvFile = open("data/vocab.csv", 'Ur')
+	# csvFile = open("data/vocab.csv", 'Ur')
+	csvFile = open(vocabFilename, 'Ur')
 	csvReader = csv.reader(csvFile, delimiter=',', quotechar='"')
 	# Vocab freq stores the vocab as keys and the doc frequency as values
 	for row in csvReader:
@@ -207,7 +208,8 @@ def ComputeCommentArticleRelevance():
 			vocab_freq[row[0]] = int(row[1])
 
 	# commentID,commentTitle,commentBody,approveDate,recommendationCount,display_name,location,commentQuestion,commentSequence,status,articleURL,editorsSelection,in_study
-	csvFile = open("data/comments_study.csv", 'Ur')
+	# csvFile = open("data/comments_study.csv", 'Ur')
+	csvFile = open(commentsFilename, 'Ur')
 	csvReader = csv.reader(csvFile, delimiter=',', quotechar='"')
 	comments  = {}
 	for row in csvReader:
@@ -218,7 +220,8 @@ def ComputeCommentArticleRelevance():
 	nDocuments = len(comments)
 
 	# articleID,pubDate,headline,articleURL,fullText,materialType,snippet
-	csvFile = open("data/articles.csv", 'Ur')
+	# csvFile = open("data/articles.csv", 'Ur')
+	csvFile = open(articleFilename, 'Ur')
 	csvReader = csv.reader(csvFile, delimiter=',', quotechar='"')
 	articles  = {}
 	for row in csvReader:
@@ -227,7 +230,8 @@ def ComputeCommentArticleRelevance():
 			articles[row[3]] = row
 
 	# output file will have have a final row that is the comment-article relevance
-	fileWriter = csv.writer(open("data/comment_study_article_relevance.csv", "w+"),delimiter=",")
+	# fileWriter = csv.writer(open("data/comment_study_article_relevance.csv", "w+"),delimiter=",")
+	fileWriter = csv.writer(open(articleRelevanceFilename, "w+"),delimiter=",")
 	# for each article and the comments on each
 	for (j, (commentID, comment)) in enumerate(comments.items()):
 		print "comment: " + str(j)
@@ -260,9 +264,9 @@ def ComputeCommentArticleRelevance():
 		fileWriter.writerow(comment)
 
 
-def ComputeCommentConversationalRelevance():
+def ComputeCommentConversationalRelevance(vocabFilename, commentsFilename, conversationalRelevanceFilename):
 	# Read in the vocabulary and the document frequencies 
-	csvFile = open("data/vocab.csv", 'Ur')
+	csvFile = open(vocabFilename, 'Ur')
 	csvReader = csv.reader(csvFile, delimiter=',', quotechar='"')
 	# Vocab freq stores the vocab as keys and the doc frequency as values
 	for row in csvReader:
@@ -272,7 +276,7 @@ def ComputeCommentConversationalRelevance():
 	# Get articles with only more than 10 commnts on them
 	articles = {}
 	# commentID,commentTitle,commentBody,approveDate,recommendationCount,display_name,location,commentQuestion,commentSequence,status,articleURL,editorsSelection,in_study
-	csvFile = open("data/comments_study.csv", 'Ur')
+	csvFile = open(commentsFilename, 'Ur')
 	csvReader = csv.reader(csvFile, delimiter=',', quotechar='"')
 	nDocuments = 0
 	for row in csvReader:
@@ -288,8 +292,8 @@ def ComputeCommentConversationalRelevance():
 			else:
 				articles[article_url].append(row)
 
-
-	fileWriter = csv.writer(open("data/comment_study_comment_conversational_relevance.csv", "w+"),delimiter=",")
+	# fileWriter = csv.writer(open("data/comment_study_comment_conversational_relevance.csv", "w+"),delimiter=",")
+	fileWriter = csv.writer(open(conversationalRelevanceFilename, "w+"),delimiter=",")
 	nc = 0
 	for a in articles:
 		print a

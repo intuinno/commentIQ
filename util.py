@@ -84,7 +84,7 @@ def makeCrossValidationDataset(commentFile, articleFile):
 def makeSmallDataset(commentFile, articleFile):
 
     #Definition of constants
-    constArticleNumber = 5
+    constArticleNumber = 10
 
     #Make sure 'smallData' directory exists
     if not os.path.isdir('smallData'):
@@ -121,7 +121,83 @@ def makeSmallDataset(commentFile, articleFile):
         elif row[10] in articleURLDictionary:
             smallCommentWriter.writerow(row)
 
+def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanceFile):
 
+    csvFile = open(commentFile, 'Ur')
+    csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"')
+
+    comments = {}
+
+    for row in csvReader:
+        if row['commentID'] not in comments:
+            comments[row['commentID']] = {}
+            comments[row['commentID']]['commentID'] = row['commentID']
+            comments[row['commentID']]['editorsSelection'] = row['editorsSelection']
+
+
+    csvFile = open(articleRelevanceFile, 'Ur')
+    csvReader = csv.reader(csvFile, delimiter=',', quotechar='"')
+
+    for row in csvReader:
+        comments[row[0]]['articleRelevance'] = row[13]
+
+    csvFile = open(conversationalRelevanceFile, 'Ur')
+    csvReader = csv.reader(csvFile, delimiter=',', quotechar='"')
+
+    for row in csvReader:
+        comments[row[0]]['conversationalRelevance'] = row[13]
+
+    vwInputFileName = "smallData/vwInputFile"
+    vwInputFileWriter = csv.writer(open(vwInputFileName, "w+"),delimiter=" ")
+
+    for (commentID, comment) in comments.items():
+        row = [comment['editorsSelection'] ,"'" + str(comment['commentID']) ,  '|' , 'AR:'+ str(comment['articleRelevance']) ]
+
+        if 'conversationalRelevance' in comment:
+            row.append( 'CR:' + str( comment['conversationalRelevance'] ) )
+        vwInputFileWriter.writerow(row)
+
+    return comments
+
+
+
+
+
+# def runExperiment(trainingCommentFile, trainingArticleFile, testCommentFile, testArticleFile, filePrefix='wsd_vw', quietVW=False):
+#     trainFileVW = filePrefix + '.tr'
+#     testFileVW  = filePrefix + '.te'
+#     modelFileVW = filePrefix + '.model'
+#
+#     trainingCorpus = readWSDCorpus(trainingFile
+#
+#     ComputeVocabulary(trainingCommentFile,"smallData/vocab.csv")
+# # Compute similarities requires that the vocab file already by computed
+# # vocabFilename, commentsFilename, articleFilename, articleRelevanceFilename
+#     ComputeCommentArticleRelevance("smallData/vocab.csv","smallData/comments_study.csv","smallData/articles.csv", "smallData/comment_study_article_relevance.csv")
+#     ComputeCommentConversationalRelevance("smallData/vocab.csv","smallData/comments_study.csv", "smallData/comment_study_comment_conversational_relevance.csv")
+#
+#     testCorpus = None if testFile is None else readWSDCorpus(testFile)
+#
+#     print 'collecting translation table'
+#     ttable = collectTranslationTable(trainingCorpus)
+#
+#     print 'generating classification data'
+#     generateVWData(trainingCorpus, ttable, getFFeatures, getEFeatures, getPairFeatures, trainFileVW)
+#     if testCorpus is not None:
+#         generateVWData(testCorpus, ttable, getFFeatures, getEFeatures, getPairFeatures, testFileVW )
+#
+#     trainVW(trainFileVW, modelFileVW, quietVW)
+#
+#     train_pred = testVW(trainFileVW, modelFileVW, quietVW)
+#     train_acc = evaluatePredictions(trainingCorpus, ttable, train_pred)
+#
+#     test_pred = None
+#     test_acc = 0
+#     if testCorpus is not None:
+#         test_pred = testVW(testFileVW , modelFileVW, quietVW)
+#         test_acc  = evaluatePredictions(testCorpus, ttable, test_pred)
+#
+#     return (train_acc, test_acc, test_pred)
 
 
 # makeCrossValidationDataset("data/comments_study.csv", "data/articles.csv")
