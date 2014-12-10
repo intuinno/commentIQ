@@ -18,7 +18,7 @@ ComputeCommentConversationalRelevance("smallData/vocab.csv","smallData/comments_
 makeVWInputDataset("smallData/comments_study.csv", "smallData/comment_study_article_relevance.csv", "smallData/comment_study_comment_conversational_relevance.csv", "smallData/input.vw")
 
 
-cmd = 'vw -d smallData/input.vw -f  prediction.vw -p smallData/prediction.vw --binary '
+cmd = 'vw -d smallData/input.vw -f  model.vw -p smallData/prediction.vw --binary '
 
 
 p = os.system(cmd)
