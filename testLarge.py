@@ -1,22 +1,30 @@
 __author__ = 'intuinno'
-
 from processComments import *
+from util import *
+import os
 
-# ComputeVocabulary("smallData/comments_study.csv", "smallData/vocab.csv")
 
+
+startTime = datetime.now()
+
+makeSmallDataset("data/comments_study.csv", "data/articles.csv", 100)
+
+ComputeVocabulary("smallData/comments_study.csv","smallData/vocab.csv")
 # Compute similarities requires that the vocab file already by computed
-#ComputeCommentArticleRelevance()
-#ComputeCommentConversationalRelevance()
+# vocabFilename, commentsFilename, articleFilename, articleRelevanceFilename
+ComputeCommentArticleRelevance("smallData/vocab.csv","smallData/comments_study.csv","smallData/articles.csv", "smallData/comment_study_article_relevance.csv")
+ComputeCommentConversationalRelevance("smallData/vocab.csv","smallData/comments_study.csv", "smallData/comment_study_comment_conversational_relevance.csv")
 
-ComputeVocabulary("data/comments_study.csv","data/vocab.csv")
-# startTime = datetime.now()
-#
-# # Compute similarities requires that the vocab file already by computed
-# ComputeCommentArticleRelevance()
-# ComputeCommentConversationalRelevance()
-#
-# endTime = datetime.now()
-#
-# print "start Time is " + str(startTime)
-# print "end Time is " + str(endTime)
-# print "Duration is " + str(endTime - startTime)
+makeVWInputDataset("smallData/comments_study.csv", "smallData/comment_study_article_relevance.csv", "smallData/comment_study_comment_conversational_relevance.csv", "smallData/input.vw")
+
+
+cmd = 'vw -d smallData/input.vw -f  prediction.vw -p smallData/prediction.vw --binary '
+
+
+p = os.system(cmd)
+
+endTime = datetime.now()
+
+print "start Time is " + str(startTime)
+print "end Time is " + str(endTime)
+print "Duration is " + str(endTime - startTime)
