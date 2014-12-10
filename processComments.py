@@ -149,9 +149,9 @@ def CleanAndTokenize(text):
 
 
 # Computes the vocabulary to be used for vector operations
-def ComputeVocabulary():
+def ComputeVocabulary(comment_filename, vocab_filename):
 	# Get the data
-	csvFile = open("data/comments_study.csv", 'Ur')
+	csvFile = open(comment_filename, 'Ur')
 	csvReader = csv.reader(csvFile, delimiter=',', quotechar='"')
 	comments  = {}
 	for row in csvReader:
@@ -183,14 +183,14 @@ def ComputeVocabulary():
 	# find cutoff
 	unigram_cutoff = 0
 	for (i, (key, val)) in enumerate(fd.items()):
-		#print str(i) + " " + str(key) + " " + str(fd[key])
+		# print str(i) + " " + str(key) + " " + str(fd[key])
 		if fd[key] < 10:
 			unigram_cutoff = i - 1
-			break
+			# break
 	print "unigram cutoff: " + str(unigram_cutoff)
 	word_features.extend(fd.keys()[:unigram_cutoff])
 
-	fileWriter = csv.writer(open("data/vocab.csv", "w+"),delimiter=",")
+	fileWriter = csv.writer(open(vocab_filename, "w+"),delimiter=",")
 	for w in word_features:
 		row = [w.encode("utf8"), doc_frequency[w]]
 		fileWriter.writerow(row)
@@ -203,7 +203,7 @@ def ComputeCommentArticleRelevance():
 	csvReader = csv.reader(csvFile, delimiter=',', quotechar='"')
 	# Vocab freq stores the vocab as keys and the doc frequency as values
 	for row in csvReader:
-		if csvReader.line_num > 1:			
+		if csvReader.line_num == 1:
 			vocab_freq[row[0]] = int(row[1])
 
 	# commentID,commentTitle,commentBody,approveDate,recommendationCount,display_name,location,commentQuestion,commentSequence,status,articleURL,editorsSelection,in_study
@@ -337,17 +337,6 @@ def ComputeCommentConversationalRelevance():
 				comment.append(comment_originality)
 				fileWriter.writerow(comment)
 
-startTime = datetime.now()
-ComputeVocabulary()
 
-# Compute similarities requires that the vocab file already by computed
-ComputeCommentArticleRelevance()
-ComputeCommentConversationalRelevance()
-
-endTime = datetime.now()
-
-print "start Time is " + str(startTime)
-print "end Time is " + str(endTime)
-print "Duration is " + str(endTime - startTime)
 
 
