@@ -128,15 +128,24 @@ def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanc
 
     comments = {}
 
+    commentCount = 0
+    editorCommentCount = 0
+
     for row in csvReader:
         if row['commentID'] not in comments:
             comments[row['commentID']] = {}
-            comments[row['commentID']]['commentID'] = row['commentID']
+        comments[row['commentID']]['commentID'] = row['commentID']
 
-            if row['editorsSelection'] == 1:
-                comments[row['commentID']]['editorsSelection'] = 1
-            else:
-                comments[row['commentID']]['editorsSelection'] = -1
+        if row['editorsSelection'] == 1:
+            comments[row['commentID']]['editorsSelection'] = 1
+            editorCommentCount += 1
+
+            print "There is " + str(editorCommentCount) + " out of " + str(commentCount)
+
+        else:
+            comments[row['commentID']]['editorsSelection'] = -1
+
+        commentCount += 1
 
 
     csvFile = open(articleRelevanceFile, 'Ur')
