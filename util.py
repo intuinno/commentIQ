@@ -84,7 +84,7 @@ def makeCrossValidationDataset(commentFile, articleFile):
 def makeSmallDataset(commentFile, articleFile):
 
     #Definition of constants
-    constArticleNumber = 10
+    constArticleNumber = 100
 
     #Make sure 'smallData' directory exists
     if not os.path.isdir('smallData'):
@@ -132,7 +132,11 @@ def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanc
         if row['commentID'] not in comments:
             comments[row['commentID']] = {}
             comments[row['commentID']]['commentID'] = row['commentID']
-            comments[row['commentID']]['editorsSelection'] = row['editorsSelection']
+
+            if row['editorsSelection'] == 1:
+                comments[row['commentID']]['editorsSelection'] = 1
+            else:
+                comments[row['commentID']]['editorsSelection'] = -1
 
 
     csvFile = open(articleRelevanceFile, 'Ur')

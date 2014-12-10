@@ -204,7 +204,7 @@ def ComputeCommentArticleRelevance(vocabFilename, commentsFilename, articleFilen
 	csvReader = csv.reader(csvFile, delimiter=',', quotechar='"')
 	# Vocab freq stores the vocab as keys and the doc frequency as values
 	for row in csvReader:
-		if csvReader.line_num == 1:
+		if csvReader.line_num > 1:
 			vocab_freq[row[0]] = int(row[1])
 
 	# commentID,commentTitle,commentBody,approveDate,recommendationCount,display_name,location,commentQuestion,commentSequence,status,articleURL,editorsSelection,in_study
