@@ -9,18 +9,18 @@ import os
 
 startTime = datetime.now()
 
-makeCrossValidationDataset("data/comments_study.csv", "data/articles.csv")
+# makeCrossValidationDataset("data/comments_study.csv", "data/articles.csv")
 
-ComputeVocabulary("smallData/comments_study.csv","smallData/vocab.csv")
+ComputeVocabulary("data/comments_study.csv","data/vocab.csv")
 # Compute similarities requires that the vocab file already by computed
 # vocabFilename, commentsFilename, articleFilename, articleRelevanceFilename
-ComputeCommentArticleRelevance("smallData/vocab.csv","smallData/comments_study.csv","smallData/articles.csv", "smallData/comment_study_article_relevance.csv")
-ComputeCommentConversationalRelevance("smallData/vocab.csv","smallData/comments_study.csv", "smallData/comment_study_comment_conversational_relevance.csv")
+ComputeCommentArticleRelevance("data/vocab.csv","data/comments_study.csv","data/articles.csv", "data/comment_study_article_relevance.csv")
+ComputeCommentConversationalRelevance("data/vocab.csv","data/comments_study.csv", "data/comment_study_comment_conversational_relevance.csv")
 
-print makeVWInputDataset("smallData/comments_study.csv", "smallData/comment_study_article_relevance.csv", "smallData/comment_study_comment_conversational_relevance.csv")
+print makeVWInputDataset("data/comments_study.csv", "data/comment_study_article_relevance.csv", "data/comment_study_comment_conversational_relevance.csv","smallData/input.vw")
 
 
-cmd = 'vw -d smallData/vwInputFile -f prediction.vw'
+cmd = 'vw -d data/input.vw -f  model.vw -p data/prediction.vw --binary '
 
 
 p = os.system(cmd)
