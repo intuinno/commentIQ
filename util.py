@@ -122,7 +122,7 @@ def makeSmallDataset(commentFile, articleFile, numArticle):
         elif row[10] in articleURLDictionary:
             smallCommentWriter.writerow(row)
 
-def makeVWInputDataset(numOfSamples, commentFile, articleRelevanceFile, conversationalRelevanceFile, vwInputfile):
+def makeVWInputDataset(numOfSamples, commentFile, articleRelevanceFile, conversationalRelevanceFile, vwTrainInputfile, vwTestInputfile):
 
     csvFile = open(commentFile, 'Ur')
     csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"')
@@ -208,6 +208,12 @@ def howManyPickForAnArticle(commentFile, articleFile):
 
         articleURLDictionary[row['articleURL']]['commentCount'] += 1
 
+    return articleURLDictionary
+
+def writeHowManyPicksForAnArticle():
+
+    articleURLDictionary = howManyPickForAnArticle("data/comments_study.csv", "data/articles.csv")
+
     if not os.path.isdir('result'):
         os.makedirs('result')
 
@@ -221,6 +227,29 @@ def howManyPickForAnArticle(commentFile, articleFile):
         for (articleID, article) in articleURLDictionary.items():
             print str(article['id']) + "\t NumSelection: " + str(article['selectionCount'])  + "\t NumComment: " + str(article['commentCount'])
             writer.writerow(article)
+
+    return articleURLDictionary
+
+def makeCommentsListConsideringNoPicksInArticle(commentFile, articleFile):
+
+    articleURLDictionary = howManyPickForAnArticle(commentFile, articleFile)
+
+    selectedCommentsList = []
+    notSelectedCommentsList = []
+
+    csvFile = open(commentFile, 'Ur')
+    csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"')
+
+    for row in csvReader:
+        if row['editorsSelection'] == '1':
+            selectedCommentsList.append(row)
+        else:
+            if articleURLDictionary[row['articleURL']]['selectionCount'] > 0:
+                notSelectedCommentsList.append(row)
+
+    print selectedCommentsList
+
+
 
 def evaluatePrediction( commentFile, predictionFile, resultFile):
 
@@ -297,6 +326,8 @@ def evaluatePrediction( commentFile, predictionFile, resultFile):
             print "something wrong"
         else:
             print "Recall: " + str(truePositive / (truePositive + falseNegative))
+
+
 
 
 
