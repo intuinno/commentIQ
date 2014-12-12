@@ -122,7 +122,7 @@ def makeSmallDataset(commentFile, articleFile, numArticle):
         elif row[10] in articleURLDictionary:
             smallCommentWriter.writerow(row)
 
-def makeVWInputDataset(numOfSamples, commentFile, articleRelevanceFile, conversationalRelevanceFile, vwTrainInputfile, vwTestInputfile):
+def makeVWInputDatasetWithNumOfSamples(numOfSamples, commentFile, articleRelevanceFile, conversationalRelevanceFile, vwTrainInputfile, vwTestInputfile):
 
     csvFile = open(commentFile, 'Ur')
     csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"')
@@ -230,7 +230,7 @@ def writeHowManyPicksForAnArticle():
 
     return articleURLDictionary
 
-def makeCommentsListConsideringNoPicksInArticle(commentFile, articleFile):
+def makeCommentsListConsideringNoPicksInArticle(commentFile, articleFile, trainFile, testFile):
 
     articleURLDictionary = howManyPickForAnArticle(commentFile, articleFile)
 
@@ -247,7 +247,34 @@ def makeCommentsListConsideringNoPicksInArticle(commentFile, articleFile):
             if articleURLDictionary[row['articleURL']]['selectionCount'] > 0:
                 notSelectedCommentsList.append(row)
 
-    print selectedCommentsList
+    random.shuffle(selectedCommentsList)
+
+    crossIndex = int(len(selectedCommentsList) * 0.8)
+
+    trainSelectedCommentsList = selectedCommentsList[:crossIndex]
+    testSelectedCommentsList = selectedCommentsList[crossIndex:]
+
+    trainNotSelectedCommentsList = random.sample(selectedCommentsList, len(trainSelectedCommentsList))
+    testNotSelectedCommentsList = random.sample(notSelectedCommentsList, len(testSelectedCommentsList))
+
+    csvFile = open(trainFile, 'w+')
+    csvWriter = csv.writer(csvFile, delimiter=',')
+
+    csvWriter.writerow(csvReader.fieldnames)
+
+    for i in range(len(trainSelectedCommentsList)):
+        csvWriter.writerow(trainSelectedCommentsList[i])
+	csvWriter.writerow(trainNotSelectedCommentsList[i])
+
+    csvFile = open(testFile, 'w+')
+    csvWriter = csv.writer(csvFile, delimiter=',')
+
+    csvWriter.writerow(csvReader.fieldnames)
+
+    for i in range(len(testSelectedCommentsList)):
+	csvWriter.writerow(testSelectedCommentsList[i])
+	csvWriter.writerow(testNotSelectedCommentsList[i])
+
 
 
 
