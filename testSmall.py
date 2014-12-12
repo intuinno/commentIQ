@@ -5,15 +5,15 @@ import os
 
 
 
-startTime = datetime.now()
+# startTime = datetime.now()
 
-makeSmallDataset("data/comments_study.csv", "data/articles.csv", 5)
+# makeSmallDataset("data/comments_study.csv", "data/articles.csv", 5)
 
-ComputeVocabulary("smallData/comments_study.csv","smallData/vocab.csv")
+# ComputeVocabulary("smallData/comments_study.csv","smallData/vocab.csv")
 # Compute similarities requires that the vocab file already by computed
 # vocabFilename, commentsFilename, articleFilename, articleRelevanceFilename
-ComputeCommentArticleRelevance("smallData/vocab.csv","smallData/comments_study.csv","smallData/articles.csv", "smallData/comment_study_article_relevance.csv")
-ComputeCommentConversationalRelevance("smallData/vocab.csv","smallData/comments_study.csv", "smallData/comment_study_comment_conversational_relevance.csv")
+# ComputeCommentArticleRelevance("smallData/vocab.csv","smallData/comments_study.csv","smallData/articles.csv", "smallData/comment_study_article_relevance.csv")
+# ComputeCommentConversationalRelevance("smallData/vocab.csv","smallData/comments_study.csv", "smallData/comment_study_comment_conversational_relevance.csv")
 
 makeVWInputDataset("smallData/comments_study.csv", "smallData/comment_study_article_relevance.csv", "smallData/comment_study_comment_conversational_relevance.csv", "smallData/input.vw")
 

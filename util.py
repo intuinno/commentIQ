@@ -2,6 +2,7 @@ __author__ = 'intuinno'
 
 import csv
 import os
+from collections import Counter
 
 
 def makeCrossValidationDataset(commentFile, articleFile):
@@ -121,7 +122,7 @@ def makeSmallDataset(commentFile, articleFile, numArticle):
         elif row[10] in articleURLDictionary:
             smallCommentWriter.writerow(row)
 
-def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanceFile, vwInputfile):
+def makeVWInputDataset(numOfSamples, commentFile, articleRelevanceFile, conversationalRelevanceFile, vwInputfile):
 
     csvFile = open(commentFile, 'Ur')
     csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"')
@@ -130,6 +131,103 @@ def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanc
 
     commentCount = 0
     editorCommentCount = 0
+
+    for row in csvReader:
+
+        if row['editorsSelection'] == 1:
+            if editorCommentCount < numOfSamples:
+                if row['commentID'] not in comments:
+                    comments[row['commentID']] = {}
+                    comments[row['commentID']]['commentID'] = row['commentID']
+                    comments[row['commentID']]['editorsSelection'] = 1
+                    editorCommentCount += 1
+
+        else:
+            if commentCount < numOfSamples:
+                if row['commentID'] not in comments:
+                    comments[row['commentID']] = {}
+                    comments[row['commentID']]['commentID'] = row['commentID']
+                    comments[row['commentID']]['editorsSelection'] = -1
+                    commentCount += 1
+
+        if editorCommentCount > numOfSamples and commentCount > numOfSamples:
+            break
+
+    csvFile = open(articleRelevanceFile, 'Ur')
+    csvReader = csv.reader(csvFile, delimiter=',', quotechar='"')
+
+    for row in csvReader:
+        if row[0] in comments:
+            comments[row[0]]['articleRelevance'] = row[13]
+
+    csvFile = open(conversationalRelevanceFile, 'Ur')
+    csvReader = csv.reader(csvFile, delimiter=',', quotechar='"')
+
+    for row in csvReader:
+        if row[0] in comments:
+             comments[row[0]]['conversationalRelevance'] = row[13]
+
+    vwInputFileName =vwInputfile
+    vwInputFileWriter = csv.writer(open(vwInputFileName, "w+"),delimiter=" ")
+
+    for (commentID, comment) in comments.items():
+        row = [comment['editorsSelection'] ,"'" + str(comment['commentID']) ,  '|' , 'AR:'+ str(comment['articleRelevance']) ]
+
+        if 'conversationalRelevance' in comment:
+            row.append( 'CR:' + str( comment['conversationalRelevance'] ) )
+        vwInputFileWriter.writerow(row)
+
+    return comments
+
+
+def howManyPickForAnArticle(commentFile, articleFile):
+    # Read the articleFile
+    csvFile = open(articleFile, 'Ur')
+    csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"')
+
+	# Read each line and process it
+    articleURLDictionary = {}
+    count = 0
+    for row in csvReader:
+        articleURLDictionary[row['articleURL']] = Counter()
+        articleURLDictionary[row['articleURL']]['id'] = row['articleID']
+        articleURLDictionary[row['articleURL']]['selectionCount'] = 0
+        articleURLDictionary[row['articleURL']]['commentCount'] = 0
+        count += 1
+
+    print "The Number of Article : " + str(count)
+
+
+    # Read the commentFile
+    csvFile = open(commentFile, 'Ur')
+    csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"')
+
+    for row in csvReader:
+        if row['editorsSelection'] == '1':
+            articleURLDictionary[row['articleURL']]['selectionCount'] += 1
+
+        articleURLDictionary[row['articleURL']]['commentCount'] += 1
+
+    if not os.path.isdir('result'):
+        os.makedirs('result')
+
+
+    with open('result/howManyPicksForAnArticle.csv','w+') as csvFile:
+
+        fieldnames = ['id', 'commentCount', 'selectionCount']
+        writer = csv.DictWriter(csvFile, fieldnames=fieldnames, restval='0')
+        writer.writeheader()
+
+        for (articleID, article) in articleURLDictionary.items():
+            print str(article['id']) + "\t NumSelection: " + str(article['selectionCount'])  + "\t NumComment: " + str(article['commentCount'])
+            writer.writerow(article)
+
+def evaluatePrediction( commentFile, predictionFile, resultFile):
+
+    csvFile = open(commentFile, 'Ur')
+    csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"')
+
+    comments = {}
 
     for row in csvReader:
         if row['commentID'] not in comments:
@@ -145,73 +243,64 @@ def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanc
         else:
             comments[row['commentID']]['editorsSelection'] = -1
 
-        commentCount += 1
+
+    csvFile = open(predictionFile, 'Ur')
+    csvReader = csv.reader(csvFile, delimiter=' ')
+
+    with open(resultFile,'w+') as csvFile:
+
+        fieldnames = ['id', 'editorsSelection', 'prediction']
+        writer = csv.DictWriter(csvFile, fieldnames=fieldnames, restval='0')
+        writer.writeheader()
+
+        truePositive = 0
+        falsePositive = 0
+        trueNegative = 0
+        falseNegative = 0
+
+        comment = {}
+
+        for row in csvReader:
+            comment['id'] = row[1]
+            comment['editorsSelection'] = comments[row[1]]['editorsSelection']
+            comment['prediction'] = row[0]
+            writer.writerow(comment)
+
+            if float(row[0]) == -1:
+                if comment['editorsSelection'] == -1:
+                    trueNegative += 1
+                elif comment['editorsSelection'] == 1:
+                    falseNegative += 1
+                else:
+                    print "You should not see me. There is something wrong in comments " + comments[row[1]]
+            elif float(row[0]) == 1:
+                if comment['editorsSelection'] == 1:
+                    truePositive += 1
+                elif comment['editorsSelection'] == -1:
+                    falsePositive += 1
+                else:
+                    print "You should not see me. There is something wrong in comments " + comments[row[1]]
+            else:
+                    print "You should not see me. There is something wrong in comments " + comments[row[1]]
 
 
-    csvFile = open(articleRelevanceFile, 'Ur')
-    csvReader = csv.reader(csvFile, delimiter=',', quotechar='"')
+        print "True Positive: " + str(truePositive)
+        print "False Positive: " + str(falsePositive)
+        print "True Negative: " + str(trueNegative)
+        print "False Negative: " + str(falseNegative)
 
-    for row in csvReader:
-        comments[row[0]]['articleRelevance'] = row[13]
-
-    csvFile = open(conversationalRelevanceFile, 'Ur')
-    csvReader = csv.reader(csvFile, delimiter=',', quotechar='"')
-
-    for row in csvReader:
-        comments[row[0]]['conversationalRelevance'] = row[13]
-
-    vwInputFileName =vwInputfile
-    vwInputFileWriter = csv.writer(open(vwInputFileName, "w+"),delimiter=" ")
-
-    for (commentID, comment) in comments.items():
-        row = [comment['editorsSelection'] ,"'" + str(comment['commentID']) ,  '|' , 'AR:'+ str(comment['articleRelevance']) ]
-
-        if 'conversationalRelevance' in comment:
-            row.append( 'CR:' + str( comment['conversationalRelevance'] ) )
-        vwInputFileWriter.writerow(row)
-
-    return comments
+        if (truePositive + falsePositive) == 0:
+            print "something wrong"
+        else:
+            print "Precision: " + str( truePositive / (truePositive+ falsePositive))
+        if (truePositive + falsePositive) == 0:
+            print "something wrong"
+        else:
+            print "Recall: " + str(truePositive / (truePositive + falseNegative))
 
 
 
 
 
-# def runExperiment(trainingCommentFile, trainingArticleFile, testCommentFile, testArticleFile, filePrefix='wsd_vw', quietVW=False):
-#     trainFileVW = filePrefix + '.tr'
-#     testFileVW  = filePrefix + '.te'
-#     modelFileVW = filePrefix + '.model'
-#
-#     trainingCorpus = readWSDCorpus(trainingFile
-#
-#     ComputeVocabulary(trainingCommentFile,"smallData/vocab.csv")
-# # Compute similarities requires that the vocab file already by computed
-# # vocabFilename, commentsFilename, articleFilename, articleRelevanceFilename
-#     ComputeCommentArticleRelevance("smallData/vocab.csv","smallData/comments_study.csv","smallData/articles.csv", "smallData/comment_study_article_relevance.csv")
-#     ComputeCommentConversationalRelevance("smallData/vocab.csv","smallData/comments_study.csv", "smallData/comment_study_comment_conversational_relevance.csv")
-#
-#     testCorpus = None if testFile is None else readWSDCorpus(testFile)
-#
-#     print 'collecting translation table'
-#     ttable = collectTranslationTable(trainingCorpus)
-#
-#     print 'generating classification data'
-#     generateVWData(trainingCorpus, ttable, getFFeatures, getEFeatures, getPairFeatures, trainFileVW)
-#     if testCorpus is not None:
-#         generateVWData(testCorpus, ttable, getFFeatures, getEFeatures, getPairFeatures, testFileVW )
-#
-#     trainVW(trainFileVW, modelFileVW, quietVW)
-#
-#     train_pred = testVW(trainFileVW, modelFileVW, quietVW)
-#     train_acc = evaluatePredictions(trainingCorpus, ttable, train_pred)
-#
-#     test_pred = None
-#     test_acc = 0
-#     if testCorpus is not None:
-#         test_pred = testVW(testFileVW , modelFileVW, quietVW)
-#         test_acc  = evaluatePredictions(testCorpus, ttable, test_pred)
-#
-#     return (train_acc, test_acc, test_pred)
 
 
-# makeCrossValidationDataset("data/comments_study.csv", "data/articles.csv")
-# makeSmallDataset("data/comments_study.csv", "data/articles.csv",10 )

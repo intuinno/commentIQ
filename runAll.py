@@ -17,13 +17,18 @@ ComputeVocabulary("data/comments_study.csv","data/vocab.csv")
 ComputeCommentArticleRelevance("data/vocab.csv","data/comments_study.csv","data/articles.csv", "data/comment_study_article_relevance.csv")
 ComputeCommentConversationalRelevance("data/vocab.csv","data/comments_study.csv", "data/comment_study_comment_conversational_relevance.csv")
 
-print makeVWInputDataset("data/comments_study.csv", "data/comment_study_article_relevance.csv", "data/comment_study_comment_conversational_relevance.csv","smallData/input.vw")
+
+makeVWInputDataset(500, "data/comments_study.csv", "data/comment_study_article_relevance.csv", "data/comment_study_comment_conversational_relevance.csv", "data/trainInput.vw","data/testInput.vw")
 
 
-cmd = 'vw -d data/input.vw -f  model.vw -p data/prediction.vw --binary '
-
-
+cmd = 'vw -d data/trainInput.vw -f  model.vw --binary '
 p = os.system(cmd)
+
+
+cmd = 'vw -t data/testInput.vw -f  model.vw -p data/prediction.vw --binary '
+p = os.system(cmd)
+
+
 
 endTime = datetime.now()
 
