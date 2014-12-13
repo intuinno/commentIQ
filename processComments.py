@@ -182,14 +182,11 @@ def ComputeVocabulary(comment_filename, vocab_filename):
 	fd = FreqDist(tokens)
 
 	# find cutoff
-	unigram_cutoff = 0
+
 	for (i, (key, val)) in enumerate(fd.items()):
 		# print str(i) + " " + str(key) + " " + str(fd[key])
-		if fd[key] < 10:
-			unigram_cutoff = i - 1
-			break
-	print "unigram cutoff: " + str(unigram_cutoff)
-	word_features.extend(fd.keys()[:unigram_cutoff])
+		if fd[key] >= 10:
+			word_features.append(key)
 
 	fileWriter = csv.writer(open(vocab_filename, "w+"),delimiter=",")
 	for w in word_features:
