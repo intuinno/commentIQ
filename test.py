@@ -10,4 +10,10 @@ import os
 
 # makeVWInputDataset(500, "data/comments_study.csv", "data/comment_study_article_relevance.csv", "data/comment_study_comment_conversational_relevance.csv", "data/input.vw")
 
-makeCommentsListConsideringNoPicksInArticle("data/comments_study.csv", "data/articles.csv", "data/trainInput.vw", "data/testInput.vw")
+makeCommentsListConsideringNoPicksInArticle("data/comments_study.csv", "data/articles.csv", "data/trainInputComments.csv", "data/testInputComments.csv")
+
+makeVWInputDataset( "data/trainInputComments.csv", "data/comment_study_article_relevance.csv", "data/comment_study_comment_conversational_relevance.csv", "data/inputTrain.vw")
+
+makeVWInputDataset( "data/testInputComments.csv", "data/comment_study_article_relevance.csv", "data/comment_study_comment_conversational_relevance.csv", "data/inputTest.vw")
+
+

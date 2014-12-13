@@ -124,7 +124,7 @@ def makeSmallDataset(commentFile, articleFile, numArticle):
         elif row[10] in articleURLDictionary:
             smallCommentWriter.writerow(row)
 
-def makeVWInputDatasetWithNumOfSamples(numOfSamples, commentFile, articleRelevanceFile, conversationalRelevanceFile, vwTrainInputfile, vwTestInputfile):
+def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanceFile, vwInputfile):
 
     csvFile = open(commentFile, 'Ur')
     csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"')
@@ -137,23 +137,19 @@ def makeVWInputDatasetWithNumOfSamples(numOfSamples, commentFile, articleRelevan
     for row in csvReader:
 
         if row['editorsSelection'] == 1:
-            if editorCommentCount < numOfSamples:
-                if row['commentID'] not in comments:
-                    comments[row['commentID']] = {}
-                    comments[row['commentID']]['commentID'] = row['commentID']
-                    comments[row['commentID']]['editorsSelection'] = 1
-                    editorCommentCount += 1
+            if row['commentID'] not in comments:
+                comments[row['commentID']] = {}
+                comments[row['commentID']]['commentID'] = row['commentID']
+                comments[row['commentID']]['editorsSelection'] = 1
+                editorCommentCount += 1
 
         else:
-            if commentCount < numOfSamples:
-                if row['commentID'] not in comments:
-                    comments[row['commentID']] = {}
-                    comments[row['commentID']]['commentID'] = row['commentID']
-                    comments[row['commentID']]['editorsSelection'] = -1
-                    commentCount += 1
+            if row['commentID'] not in comments:
+                comments[row['commentID']] = {}
+                comments[row['commentID']]['commentID'] = row['commentID']
+                comments[row['commentID']]['editorsSelection'] = -1
+                commentCount += 1
 
-        if editorCommentCount > numOfSamples and commentCount > numOfSamples:
-            break
 
     csvFile = open(articleRelevanceFile, 'Ur')
     csvReader = csv.reader(csvFile, delimiter=',', quotechar='"')
@@ -171,6 +167,8 @@ def makeVWInputDatasetWithNumOfSamples(numOfSamples, commentFile, articleRelevan
 
     vwInputFileName =vwInputfile
     vwInputFileWriter = csv.writer(open(vwInputFileName, "w+"),delimiter=" ")
+
+    random.shuffle(comments)
 
     for (commentID, comment) in comments.items():
         row = [comment['editorsSelection'] ,"'" + str(comment['commentID']) ,  '|' , 'AR:'+ str(comment['articleRelevance']) ]
