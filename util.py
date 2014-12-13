@@ -3,9 +3,11 @@ __author__ = 'intuinno'
 import csv
 import os
 from collections import Counter
+import random
 
 
 def makeCrossValidationDataset(commentFile, articleFile):
+
 
     #Definition of constants
     constFoldNumber = 5
@@ -258,24 +260,22 @@ def makeCommentsListConsideringNoPicksInArticle(commentFile, articleFile, trainF
     testNotSelectedCommentsList = random.sample(notSelectedCommentsList, len(testSelectedCommentsList))
 
     csvFile = open(trainFile, 'w+')
-    csvWriter = csv.writer(csvFile, delimiter=',')
+    csvWriter = csv.DictWriter(csvFile, fieldnames=csvReader.fieldnames)
 
-    csvWriter.writerow(csvReader.fieldnames)
+    csvWriter.writeheader()
 
     for i in range(len(trainSelectedCommentsList)):
         csvWriter.writerow(trainSelectedCommentsList[i])
-	csvWriter.writerow(trainNotSelectedCommentsList[i])
+        csvWriter.writerow(trainNotSelectedCommentsList[i])
 
     csvFile = open(testFile, 'w+')
-    csvWriter = csv.writer(csvFile, delimiter=',')
+    csvWriter = csv.DictWriter(csvFile, fieldnames=csvReader.fieldnames)
 
-    csvWriter.writerow(csvReader.fieldnames)
+    csvWriter.writeheader()
 
     for i in range(len(testSelectedCommentsList)):
 	csvWriter.writerow(testSelectedCommentsList[i])
 	csvWriter.writerow(testNotSelectedCommentsList[i])
-
-
 
 
 def evaluatePrediction( commentFile, predictionFile, resultFile):
