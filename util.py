@@ -136,7 +136,7 @@ def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanc
 
     for row in csvReader:
 
-        if row['editorsSelection'] == 1:
+        if row['editorsSelection'] == '1':
             if row['commentID'] not in comments:
                 comments[row['commentID']] = {}
                 comments[row['commentID']]['commentID'] = row['commentID']
@@ -168,9 +168,10 @@ def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanc
     vwInputFileName =vwInputfile
     vwInputFileWriter = csv.writer(open(vwInputFileName, "w+"),delimiter=" ")
 
+    comments = comments.items()
     random.shuffle(comments)
 
-    for (commentID, comment) in comments.items():
+    for (commentID, comment) in comments:
         row = [comment['editorsSelection'] ,"'" + str(comment['commentID']) ,  '|' , 'AR:'+ str(comment['articleRelevance']) ]
 
         if 'conversationalRelevance' in comment:
@@ -254,7 +255,7 @@ def makeCommentsListConsideringNoPicksInArticle(commentFile, articleFile, trainF
     trainSelectedCommentsList = selectedCommentsList[:crossIndex]
     testSelectedCommentsList = selectedCommentsList[crossIndex:]
 
-    trainNotSelectedCommentsList = random.sample(selectedCommentsList, len(trainSelectedCommentsList))
+    trainNotSelectedCommentsList = random.sample(notSelectedCommentsList, len(trainSelectedCommentsList))
     testNotSelectedCommentsList = random.sample(notSelectedCommentsList, len(testSelectedCommentsList))
 
     csvFile = open(trainFile, 'w+')
