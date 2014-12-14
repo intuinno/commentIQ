@@ -289,11 +289,8 @@ def evaluatePrediction( commentFile, predictionFile, resultFile):
             comments[row['commentID']] = {}
         comments[row['commentID']]['commentID'] = row['commentID']
 
-        if row['editorsSelection'] == 1:
+        if row['editorsSelection'] == '1':
             comments[row['commentID']]['editorsSelection'] = 1
-            editorCommentCount += 1
-
-            print "There is " + str(editorCommentCount) + " out of " + str(commentCount)
 
         else:
             comments[row['commentID']]['editorsSelection'] = -1
@@ -347,11 +344,11 @@ def evaluatePrediction( commentFile, predictionFile, resultFile):
         if (truePositive + falsePositive) == 0:
             print "something wrong"
         else:
-            print "Precision: " + str( truePositive / (truePositive+ falsePositive))
-        if (truePositive + falsePositive) == 0:
+            print "Precision: " + str( truePositive / (truePositive+ falsePositive+0.1))
+        if (truePositive + falseNegative) == 0:
             print "something wrong"
         else:
-            print "Recall: " + str(truePositive / (truePositive + falseNegative))
+            print "Recall: " + str(truePositive / (truePositive + falseNegative+0.1))
 
 
 
