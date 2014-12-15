@@ -193,6 +193,24 @@ def ComputeVocabulary(comment_filename, vocab_filename):
 		row = [w.encode("utf8"), doc_frequency[w]]
 		fileWriter.writerow(row)
 
+# Computes the length of comments
+def ComputeCommentLength(comment_filename, length_feature_file):
+	# Get the data
+	csvFile = open(comment_filename, 'Ur')
+	csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"')
+
+	fieldnames = ['id','length']
+	csvWriter = csv.DictWriter(open(length_feature_file, "w+"), fieldnames)
+	csvWriter.writeheader()
+
+	for row in csvReader:
+		# don't read 1st line
+		commentLengthFeature = {}
+		commentLengthFeature['length'] = len(row['commentBody'])
+		commentLengthFeature['id'] = row['commentID']
+		csvWriter.writerow(commentLengthFeature)
+
+
 
 def ComputeCommentArticleRelevance(vocabFilename, commentsFilename, articleFilename, articleRelevanceFilename):
 	# Read in the vocabulary and the document frequencies 

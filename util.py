@@ -124,7 +124,7 @@ def makeSmallDataset(commentFile, articleFile, numArticle):
         elif row[10] in articleURLDictionary:
             smallCommentWriter.writerow(row)
 
-def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanceFile, vwInputfile):
+def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanceFile, length_feature_file, vwInputfile):
 
     csvFile = open(commentFile, 'Ur')
     csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"')
@@ -165,6 +165,13 @@ def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanc
         if row[0] in comments:
              comments[row[0]]['conversationalRelevance'] = row[13]
 
+    csvFile = open(length_feature_file, 'Ur')
+    csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"')
+
+    for row in csvReader:
+        if row['id'] in comments:
+             comments[row['id']]['length'] = row['length']
+
     vwInputFileName =vwInputfile
     vwInputFileWriter = csv.writer(open(vwInputFileName, "w+"),delimiter=" ")
 
@@ -174,12 +181,16 @@ def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanc
     for (commentID, comment) in comments:
         row = [comment['editorsSelection'] ,"'" + str(comment['commentID']) ,  '|' , 'AR:'+ str(comment['articleRelevance']) ]
 
+
         if 'conversationalRelevance' in comment:
             row.append( 'CR:' + str( comment['conversationalRelevance'] ) )
+
+
+        row.extend(['|', 'Length:' + str(comment['length'])])
+
         vwInputFileWriter.writerow(row)
 
     return comments
-
 
 def howManyPickForAnArticle(commentFile, articleFile):
     # Read the articleFile
@@ -275,7 +286,6 @@ def makeCommentsListConsideringNoPicksInArticle(commentFile, articleFile, trainF
     for i in range(len(testSelectedCommentsList)):
 	csvWriter.writerow(testSelectedCommentsList[i])
 	csvWriter.writerow(testNotSelectedCommentsList[i])
-
 
 def evaluatePrediction( commentFile, predictionFile, resultFile):
 

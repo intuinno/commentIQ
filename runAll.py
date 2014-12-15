@@ -16,17 +16,17 @@ startTime = datetime.now()
 # vocabFilename, commentsFilename, articleFilename, articleRelevanceFilename
 # ComputeCommentArticleRelevance("data/vocab.csv","data/comments_study.csv","data/articles.csv", "data/comment_study_article_relevance.csv")
 # ComputeCommentConversationalRelevance("data/vocab.csv","data/comments_study.csv", "data/comment_study_comment_conversational_relevance.csv")
-# #
-makeCommentsListConsideringNoPicksInArticle("data/comments_study.csv", "data/articles.csv", "data/trainInputComments.csv", "data/testInputComments.csv")
+# # #
+# makeCommentsListConsideringNoPicksInArticle("data/comments_study.csv", "data/articles.csv", "data/trainInputComments.csv", "data/testInputComments.csv")
+
+makeVWInputDataset( "data/trainInputComments.csv", "data/comment_study_article_relevance.csv", "data/comment_study_comment_conversational_relevance.csv","data/comments_length_feature.csv", "data/trainInput.vw")
 #
-makeVWInputDataset( "data/trainInputComments.csv", "data/comment_study_article_relevance.csv", "data/comment_study_comment_conversational_relevance.csv", "data/trainInput.vw")
-#
-makeVWInputDataset( "data/testInputComments.csv", "data/comment_study_article_relevance.csv", "data/comment_study_comment_conversational_relevance.csv", "data/testInput.vw")
+makeVWInputDataset( "data/testInputComments.csv", "data/comment_study_article_relevance.csv", "data/comment_study_comment_conversational_relevance.csv", "data/comments_length_feature.csv", "data/testInput.vw")
 #
 cmd = 'vw -d data/trainInput.vw -f  model.vw --binary '
 p = os.system(cmd)
 
-cmd = 'vw -t data/testInput.vw -f  model.vw -p data/prediction.vw --binary '
+cmd = 'vw -t data/testInput.vw -i  model.vw -p data/prediction.vw --binary '
 p = os.system(cmd)
 
 evaluatePrediction("data/comments_study.csv","data/prediction.vw","data/result.csv")
