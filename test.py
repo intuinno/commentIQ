@@ -26,3 +26,5 @@ import os
 # p = os.system(cmd)
 #
 # evaluatePrediction("data/comments_study.csv","data/prediction.vw","data/result.csv")
+
+makeCommentsFiles("smallData/comments_study.csv")

@@ -360,11 +360,30 @@ def evaluatePrediction( commentFile, predictionFile, resultFile):
         else:
             print "Recall: " + str(truePositive / (truePositive + falseNegative+0.1))
 
+def makeCommentsFiles(commentFile):
+
+    if not os.path.isdir('commentFiles'):
+        os.makedirs('commentFiles')
+
+    selectedCommentsList = []
+    notSelectedCommentsList = []
+
+    csvFile = open(commentFile, 'Ur')
+    csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"')
+
+    csvFile = open('commentFiles/comments.list', 'w+')
+    listWriter = csv.writer(csvFile)
+
+    cwd = os.getcwd()
+
+    for row in csvReader:
+        commentID = row['commentID']
+        commentBody = row['commentBody']
 
 
+        filename = cwd + '/commentFiles/' + commentID + '.comment'
+        listWriter.writerow([filename])
 
-
-
-
-
+        csvFile = open(filename, 'w+')
+        csvFile.write(commentBody)
 
