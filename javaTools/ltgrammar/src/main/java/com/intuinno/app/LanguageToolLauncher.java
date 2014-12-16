@@ -13,11 +13,16 @@ import org.languagetool.language.AmericanEnglish;
 
 import au.com.bytecode.opencsv.CSVReader;
 
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
                       
 public class LanguageToolLauncher {
 	JLanguageTool langTool_spell = new JLanguageTool(new AmericanEnglish());
 	JLanguageTool langTool_grammar = new JLanguageTool(new AmericanEnglish());
-	CSVReader articleReader;
+	CSVParser articleReader;
+		CSVFormat format = CSVFormat.DEFAULT.withHeader().withDelimiter(',');
+			
 	BufferedWriter outputFileWriter;
 	public LanguageToolLauncher(String filename){
 		
@@ -30,18 +35,17 @@ public class LanguageToolLauncher {
 		
 		try{
 			langTool_grammar.activateDefaultPatternRules();
-			articleReader = new CSVReader(new FileReader(filename));
+			articleReader = new CSVParser(new FileReader(filename),format);
 			outputFileWriter = new BufferedWriter(new FileWriter("grammar_feature.csv"));
 			outputFileWriter.write("commentID,grammarError,spellingError");
 			outputFileWriter.newLine();
-			String[] line = articleReader.readNext();
 			int lineCount = 0;
 			
-			while((line=articleReader.readNext())!=null){
+						for (CSVRecord record : articleReader){
+								
 				System.out.println(lineCount);
 				lineCount ++;
-				String[] components = line;
-				String body = components[2];
+				String body = record.get("commentBody");
 				
 				//body = "I are a boy to takee a bus";
 				body = body.replace("<br>", "").replace("<br/>", "");
@@ -65,7 +69,7 @@ public class LanguageToolLauncher {
 					}
 //					else System.out.println("[grammar] org: "+match.getMessage() +body.substring(match.getFromPos(), match.getToPos())+", correct: "+match.getSuggestedReplacements());
 				}
-				String result = components[0]+","+matchGSize+","+matchSize;
+				String result = record.get("commentID")+","+matchGSize+","+matchSize;
 				
 //				System.out.println(result);
 				outputFileWriter.write(result);
