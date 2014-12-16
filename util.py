@@ -124,7 +124,7 @@ def makeSmallDataset(commentFile, articleFile, numArticle):
         elif row[10] in articleURLDictionary:
             smallCommentWriter.writerow(row)
 
-def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanceFile, length_feature_file, vwInputfile):
+def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanceFile, length_feature_file, grammarFeatureFile, vwInputfile):
 
     csvFile = open(commentFile, 'Ur')
     csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"')
@@ -172,6 +172,16 @@ def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanc
         if row['id'] in comments:
              comments[row['id']]['length'] = row['length']
 
+
+    csvFile = open(grammarFeatureFile, 'Ur')
+    csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"')
+
+    for row in csvReader:
+        if row['commentID'] in comments:
+             comments[row['commentID']]['spellingError'] = row['spellingError']
+             comments[row['commentID']]['grammarError'] = row['grammarError']
+
+
     vwInputFileName =vwInputfile
     vwInputFileWriter = csv.writer(open(vwInputFileName, "w+"),delimiter=" ")
 
@@ -187,7 +197,7 @@ def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanc
 
 
         row.extend(['|', 'Length:' + str(comment['length'])])
-
+        row.extend(['|',  'grammarError:' + str(comment['grammarError']) , 'spellingError:' + str(comment['spellingError'])])
         vwInputFileWriter.writerow(row)
 
     return comments

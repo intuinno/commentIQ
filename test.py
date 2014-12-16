@@ -27,4 +27,4 @@ import os
 #
 # evaluatePrediction("data/comments_study.csv","data/prediction.vw","data/result.csv")
 
-makeCommentsFiles("smallData/comments_study.csv")
+makeCommentsFiles("data/comments_study.csv")
