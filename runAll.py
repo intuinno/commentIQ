@@ -18,13 +18,13 @@ startTime = datetime.now()
 # ComputeCommentConversationalRelevance("data/vocab.csv","data/comments_study.csv", "data/comment_study_comment_conversational_relevance.csv")
 # # #
 # makeCommentsListConsideringNoPicksInArticle("data/comments_study.csv", "data/articles.csv", "data/trainInputComments.csv", "data/testInputComments.csv")
-ComputeCommentLength("data/comments_study.csv", "data/comments_length_feature.csv")
+# ComputeCommentLength("data/comments_study.csv", "data/comments_length_feature.csv")
 
-makeVWInputDataset( "data/trainInputComments.csv", "data/comment_study_article_relevance.csv", "data/comment_study_comment_conversational_relevance.csv","data/comments_length_feature.csv", "javaTools/ltgrammar/grammar_feature.csv", "data/trainInput.vw")
+makeVWInputDataset( "resultBackup/trainInputComments.csv", "resultBackup/comment_study_article_relevance.csv", "resultBackup/comment_study_comment_conversational_relevance.csv","resultBackup/comments_length_feature.csv", "resultBackup/grammar_feature.csv", "data/trainInput.vw")
 #
-makeVWInputDataset( "data/testInputComments.csv", "data/comment_study_article_relevance.csv", "data/comment_study_comment_conversational_relevance.csv", "data/comments_length_feature.csv", "javaTools/ltgrammar/grammar_feature.csv", "data/testInput.vw")
+makeVWInputDataset( "resultBackup/testInputComments.csv", "resultBackup/comment_study_article_relevance.csv", "resultBackup/comment_study_comment_conversational_relevance.csv", "resultBackup/comments_length_feature.csv", "resultBackup/grammar_feature.csv", "data/testInput.vw")
 #
-cmd = 'vw -d data/trainInput.vw -f  model.vw --binary '
+cmd = 'vw -d data/trainInput.vw -f --holdout_off --passes 10 -k -c -q st -b 25 model.vw --binary '
 p = os.system(cmd)
 
 cmd = 'vw -t data/testInput.vw -i  model.vw -p data/prediction.vw --binary '
