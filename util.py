@@ -206,7 +206,7 @@ def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanc
         row += ' | ' + 'Length:' + str(comment['length'])
         # row.extend(['|',  'grammarError:' + str(comment['grammarError']) , 'spellingError:' + str(comment['spellingError'])])
 
-        row += ' | ' +   str(comment['grammarErrorCode']) + '\n' # , 'spellingError:' + str(comment['spellingError'])])
+        row += ' | ' +   str(comment['grammarErrorCode']) + ' spellingError:' + str(comment['spellingError']) + ' \n' # , 'spellingError:' + str(comment['spellingError'])])
         vwInputFileWriter.write(row)
 
     vwInputFileWriter.close()
