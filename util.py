@@ -221,6 +221,7 @@ def howManyPickForAnArticle(commentFile, articleFile):
 	# Read each line and process it
     articleURLDictionary = {}
     count = 0
+
     for row in csvReader:
         articleURLDictionary[row['articleURL']] = Counter()
         articleURLDictionary[row['articleURL']]['id'] = row['articleID']
@@ -230,16 +231,22 @@ def howManyPickForAnArticle(commentFile, articleFile):
 
     print "The Number of Article : " + str(count)
 
-
+    commentCount = 0;
+    selectedCount = 0;
     # Read the commentFile
     csvFile = open(commentFile, 'Ur')
     csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"')
 
     for row in csvReader:
+        commentCount += 1
         if row['editorsSelection'] == '1':
             articleURLDictionary[row['articleURL']]['selectionCount'] += 1
+            selectedCount += 1
 
         articleURLDictionary[row['articleURL']]['commentCount'] += 1
+
+    print "The Number of Comment : " + str(commentCount)
+    print "The Number of Pick comment : " + str(selectedCount)
 
     return articleURLDictionary
 
