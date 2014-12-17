@@ -36,7 +36,7 @@ public class LanguageToolLauncher {
 		try{
 			langTool_grammar.activateDefaultPatternRules();
 			articleReader = new CSVParser(new FileReader(filename),format);
-			outputFileWriter = new BufferedWriter(new FileWriter("grammar_feature.csv"));
+			outputFileWriter = new BufferedWriter(new FileWriter("grammar_feature_errorCode.csv"));
 			outputFileWriter.write("commentID,grammarError,spellingError");
 			outputFileWriter.newLine();
 			int lineCount = 0;
@@ -49,27 +49,33 @@ public class LanguageToolLauncher {
 				
 				//body = "I are a boy to takee a bus";
 				body = body.replace("<br>", "").replace("<br/>", "");
-				List<RuleMatch> matches = langTool_spell.check(body);
+//				List<RuleMatch> matches = langTool_spell.check(body);
 //				System.out.println(body);
-				int matchSize = matches.size();
-				for (RuleMatch match: matches){
-					if(body.substring(match.getFromPos(), match.getToPos()).equals("\"")) {
+//				int matchSize = matches.size();
+//				for (RuleMatch match: matches){
+//					if(body.substring(match.getFromPos(), match.getToPos()).equals("\"")) {
 //						System.out.println("[spell_nocount] org: "+body.substring(match.getFromPos(), match.getToPos())+", correct: "+match.getSuggestedReplacements());
-						if(matchSize>0) matchSize--;
-					}
+//						if(matchSize>0) matchSize--;
+//					}
 //					else System.out.println("[spell] org: "+body.substring(match.getFromPos(), match.getToPos())+", correct: "+match.getSuggestedReplacements());
-				}
+//				}
 				
 				List<RuleMatch> matches_g = langTool_grammar.check(body);
 				int matchGSize = matches_g.size();
+				String matchIDs = "";
 				for (RuleMatch match: matches_g){		
-					if(body.substring(match.getFromPos(), match.getToPos()).equals("\"")) {
+//					if(body.substring(match.getFromPos(), match.getToPos()).equals("\"")) {
 //						System.out.println("[grammar_nocount] org: "+match.getMessage() +body.substring(match.getFromPos(), match.getToPos())+", correct: "+match.getSuggestedReplacements());
-						if(matchGSize>0) matchGSize--;
-					}
+//						if(matchGSize>0) matchGSize--;
+//					}
 //					else System.out.println("[grammar] org: "+match.getMessage() +body.substring(match.getFromPos(), match.getToPos())+", correct: "+match.getSuggestedReplacements());
+					matchIDs = matchIDs + ' ' +  match.getRule().getId();
+				
 				}
-				String result = record.get("commentID")+","+matchGSize+","+matchSize;
+				if (matchIDs == "") {
+					matchIDs = "NO_ERROR";
+				}
+				String result = record.get("commentID")+","+matchGSize+","+matchIDs;
 				
 //				System.out.println(result);
 				outputFileWriter.write(result);
