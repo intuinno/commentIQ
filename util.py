@@ -1,3 +1,5 @@
+ # This Python file uses the following encoding: utf-8
+
 __author__ = 'intuinno'
 
 import csv
@@ -124,7 +126,7 @@ def makeSmallDataset(commentFile, articleFile, numArticle):
         elif row[10] in articleURLDictionary:
             smallCommentWriter.writerow(row)
 
-def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanceFile, length_feature_file, grammarFeatureFile, grammarErrorCodeFile, vwInputfile):
+def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanceFile, length_feature_file, grammarFeatureFile, grammarErrorCodeFile, lengthLuisFileName, vwInputfile):
 
     csvFile = open(commentFile, 'Ur')
     csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"')
@@ -187,7 +189,20 @@ def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanc
 
     for row in csvReader:
         if row['commentID'] in comments:
-             comments[row['commentID']]['grammarErrorCode'] = row['spellingError']
+            comments[row['commentID']]['grammarErrorCode'] = row['spellingError']
+
+    csvFile = open(lengthLuisFileName, 'Ur')
+    csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"')
+    lengthLuisKeys = list(csvReader.fieldnames)
+    lengthLuisKeys.remove("commentID")
+
+    for row in csvReader:
+        if row['commentID'] in comments:
+            for key in lengthLuisKeys:
+                if row[key] != '�':
+                    comments[row['commentID']][key] = row[key]
+                else:
+                    comments[row['commentID']][key] = 'NA'
 
 
     vwInputFileWriter =open(vwInputfile, 'w+')
@@ -206,7 +221,16 @@ def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanc
         row += ' | ' + 'Length:' + str(comment['length'])
         # row.extend(['|',  'grammarError:' + str(comment['grammarError']) , 'spellingError:' + str(comment['spellingError'])])
 
-        row += ' | ' +   str(comment['grammarErrorCode']) + ' spellingError:' + str(comment['spellingError']) + ' \n' # , 'spellingError:' + str(comment['spellingError'])])
+        row += ' | ' +   str(comment['grammarErrorCode']) + ' spellingError:' + str(comment['spellingError'])  # , 'spellingError:' + str(comment['spellingError'])])
+
+
+        row += ' | LengthLuis '
+
+        for key in lengthLuisKeys:
+            if comment[key] != 'NA':
+                row += key + ':' + str(comment[key]) + ' '
+
+        row += '\n'
         vwInputFileWriter.write(row)
 
     vwInputFileWriter.close()
