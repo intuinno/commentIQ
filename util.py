@@ -126,7 +126,7 @@ def makeSmallDataset(commentFile, articleFile, numArticle):
         elif row[10] in articleURLDictionary:
             smallCommentWriter.writerow(row)
 
-def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanceFile, length_feature_file, grammarFeatureFile, grammarErrorCodeFile, lengthLuisFileName, vwInputfile):
+def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanceFile, length_feature_file, grammarFeatureFile, grammarErrorCodeFile, lengthLuisFileName, LMFeatureFileName, vwInputfile):
 
     csvFile = open(commentFile, 'Ur')
     csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"')
@@ -204,6 +204,19 @@ def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanc
                 else:
                     comments[row['commentID']][key] = 'NA'
 
+    csvFile = open(LMFeatureFileName, 'Ur')
+    csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"')
+    LMKeys = list(csvReader.fieldnames)
+    LMKeys.remove("commentID")
+
+    for row in csvReader:
+        if row['commentID'] in comments:
+            for key in LMKeys:
+                if row[key] != '�':
+                    comments[row['commentID']][key] = row[key]
+                else:
+                    comments[row['commentID']][key] = 'NA'
+
 
     vwInputFileWriter =open(vwInputfile, 'w+')
 
@@ -227,6 +240,12 @@ def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanc
         row += ' | LengthLuis '
 
         for key in lengthLuisKeys:
+            if comment[key] != 'NA':
+                row += key + ':' + str(comment[key]) + ' '
+
+        row += ' | LanguageModel '
+
+        for key in LMKeys:
             if comment[key] != 'NA':
                 row += key + ':' + str(comment[key]) + ' '
 
@@ -403,14 +422,22 @@ def evaluatePrediction( commentFile, predictionFile, resultFile):
         print "True Negative: " + str(trueNegative)
         print "False Negative: " + str(falseNegative)
 
+        precision = 0
+        recall =0
+
         if (truePositive + falsePositive) == 0:
             print "something wrong"
         else:
-            print "Precision: " + str( truePositive / (truePositive+ falsePositive+0.1))
+            precision = truePositive / (truePositive+ falsePositive+0.1)
+            print "Precision: " + str( precision )
         if (truePositive + falseNegative) == 0:
             print "something wrong"
         else:
-            print "Recall: " + str(truePositive / (truePositive + falseNegative+0.1))
+            recall = truePositive / (truePositive + falseNegative+0.1)
+            print "Recall: " + str(recall)
+
+        F2 = (1 + 4) * (precision *recall / (4*precision + recall))
+        print "F2 score: " + str(F2)
 
 def makeCommentsFiles(commentFile):
 
