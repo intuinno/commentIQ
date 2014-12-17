@@ -20,9 +20,9 @@ startTime = datetime.now()
 # makeCommentsListConsideringNoPicksInArticle("data/comments_study.csv", "data/articles.csv", "data/trainInputComments.csv", "data/testInputComments.csv")
 # ComputeCommentLength("data/comments_study.csv", "data/comments_length_feature.csv")
 
-makeVWInputDataset( "resultBackup/trainInputComments.csv", "resultBackup/comment_study_article_relevance.csv", "resultBackup/comment_study_comment_conversational_relevance.csv","resultBackup/comments_length_feature.csv", "resultBackup/grammar_feature.csv", "data/trainInput.vw")
+makeVWInputDataset( "resultBackup/trainInputComments.csv", "resultBackup/comment_study_article_relevance.csv", "resultBackup/comment_study_comment_conversational_relevance.csv","resultBackup/comments_length_feature.csv", "resultBackup/grammar_feature.csv", "resultBackup/grammar_feature_errorCode.csv", "data/trainInput.vw")
 #
-makeVWInputDataset( "resultBackup/testInputComments.csv", "resultBackup/comment_study_article_relevance.csv", "resultBackup/comment_study_comment_conversational_relevance.csv", "resultBackup/comments_length_feature.csv", "resultBackup/grammar_feature.csv", "data/testInput.vw")
+makeVWInputDataset( "resultBackup/testInputComments.csv", "resultBackup/comment_study_article_relevance.csv", "resultBackup/comment_study_comment_conversational_relevance.csv", "resultBackup/comments_length_feature.csv", "resultBackup/grammar_feature.csv", "resultBackup/grammar_feature_errorCode.csv", "data/testInput.vw")
 #
 cmd = 'vw -d data/trainInput.vw -f --holdout_off --passes 10 -k -c -q st -b 25 model.vw --binary '
 p = os.system(cmd)

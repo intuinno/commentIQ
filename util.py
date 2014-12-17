@@ -124,7 +124,7 @@ def makeSmallDataset(commentFile, articleFile, numArticle):
         elif row[10] in articleURLDictionary:
             smallCommentWriter.writerow(row)
 
-def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanceFile, length_feature_file, grammarFeatureFile, vwInputfile):
+def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanceFile, length_feature_file, grammarFeatureFile, grammarErrorCodeFile, vwInputfile):
 
     csvFile = open(commentFile, 'Ur')
     csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"')
@@ -182,25 +182,34 @@ def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanc
              comments[row['commentID']]['grammarError'] = row['grammarError']
 
 
-    vwInputFileName =vwInputfile
-    vwInputFileWriter = csv.writer(open(vwInputFileName, "w+"),delimiter=" ")
+    csvFile = open(grammarErrorCodeFile, 'Ur')
+    csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"', skipinitialspace=True, quoting=csv.QUOTE_NONE)
+
+    for row in csvReader:
+        if row['commentID'] in comments:
+             comments[row['commentID']]['grammarErrorCode'] = row['spellingError']
+
+
+    vwInputFileWriter =open(vwInputfile, 'w+')
 
     comments = comments.items()
     random.shuffle(comments)
 
     for (commentID, comment) in comments:
-        row = [comment['editorsSelection'] ,"'" + str(comment['commentID']) ,  '|' , 'AR:'+ str(comment['articleRelevance']) ]
+        row = str(comment['editorsSelection'])  + " '" + str(comment['commentID'])  + ' | ' + 'AR:'+ str(comment['articleRelevance'])
 
 
         if 'conversationalRelevance' in comment:
-            row.append( 'CR:' + str( comment['conversationalRelevance'] ) )
+            row +=  ' CR:' + str( comment['conversationalRelevance'] )
 
 
-        row.extend(['|', 'Length:' + str(comment['length'])])
+        row += ' | ' + 'Length:' + str(comment['length'])
         # row.extend(['|',  'grammarError:' + str(comment['grammarError']) , 'spellingError:' + str(comment['spellingError'])])
 
-        row.extend(['|',  'grammarError:' + str(comment['grammarError'])]) # , 'spellingError:' + str(comment['spellingError'])])
-        vwInputFileWriter.writerow(row)
+        row += ' | ' +   str(comment['grammarErrorCode']) + '\n' # , 'spellingError:' + str(comment['spellingError'])])
+        vwInputFileWriter.write(row)
+
+    vwInputFileWriter.close()
 
     return comments
 
