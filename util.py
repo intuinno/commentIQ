@@ -126,7 +126,7 @@ def makeSmallDataset(commentFile, articleFile, numArticle):
         elif row[10] in articleURLDictionary:
             smallCommentWriter.writerow(row)
 
-def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanceFile, length_feature_file, grammarFeatureFile, grammarErrorCodeFile, lengthLuisFileName, LMFeatureFileName, vwInputfile):
+def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanceFile, length_feature_file, grammarFeatureFile, grammarErrorCodeFile, lengthLuisFileName, LMFeatureFileName, syntaxFeatureFile, vwInputfile):
 
     csvFile = open(commentFile, 'Ur')
     csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"')
@@ -217,6 +217,19 @@ def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanc
                 else:
                     comments[row['commentID']][key] = 'NA'
 
+    csvFile = open(syntaxFeatureFile, 'Ur')
+    csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"')
+    syntaxKeys = list(csvReader.fieldnames)
+    syntaxKeys.remove("commentID")
+
+    for row in csvReader:
+        if row['commentID'] in comments:
+            for key in syntaxKeys:
+                if row[key] != '�':
+                    comments[row['commentID']][key] = row[key]
+                else:
+                    comments[row['commentID']][key] = 'NA'
+
 
     vwInputFileWriter =open(vwInputfile, 'w+')
 
@@ -246,6 +259,12 @@ def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanc
         row += ' | LanguageModel '
 
         for key in LMKeys:
+            if comment[key] != 'NA':
+                row += key + ':' + str(comment[key]) + ' '
+
+        row += ' | syntax '
+
+        for key in syntaxKeys:
             if comment[key] != 'NA':
                 row += key + ':' + str(comment[key]) + ' '
 
