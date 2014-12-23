@@ -126,7 +126,7 @@ def makeSmallDataset(commentFile, articleFile, numArticle):
         elif row[10] in articleURLDictionary:
             smallCommentWriter.writerow(row)
 
-def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanceFile, length_feature_file, grammarFeatureFile, grammarErrorCodeFile, lengthLuisFileName, LMFeatureFileName, LapataFeautreFileName, vwInputfile):
+def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanceFile, featureFileListFileName, vwInputfile):
 
     csvFile = open(commentFile, 'Ur')
     csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"')
@@ -135,6 +135,7 @@ def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanc
 
     commentCount = 0
     editorCommentCount = 0
+    allFeatureKeys = []
 
     for row in csvReader:
 
@@ -152,7 +153,6 @@ def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanc
                 comments[row['commentID']]['editorsSelection'] = -1
                 commentCount += 1
 
-
     csvFile = open(articleRelevanceFile, 'Ur')
     csvReader = csv.reader(csvFile, delimiter=',', quotechar='"')
 
@@ -167,68 +167,34 @@ def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanc
         if row[0] in comments:
              comments[row[0]]['conversationalRelevance'] = row[13]
 
-    csvFile = open(length_feature_file, 'Ur')
-    csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"')
-
-    for row in csvReader:
-        if row['id'] in comments:
-             comments[row['id']]['length'] = row['length']
+    csvFile = open(featureFileListFileName, 'Ur')
+    csvFeatureFileListReader = csv.DictReader(csvFile, delimiter=',', quotechar='"', skipinitialspace=True)
 
 
-    csvFile = open(grammarFeatureFile, 'Ur')
-    csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"')
-
-    for row in csvReader:
-        if row['commentID'] in comments:
-             comments[row['commentID']]['spellingError'] = row['spellingError']
-             comments[row['commentID']]['grammarError'] = row['grammarError']
 
 
-    csvFile = open(grammarErrorCodeFile, 'Ur')
-    csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"', skipinitialspace=True, quoting=csv.QUOTE_NONE)
+    for featureFileName in csvFeatureFileListReader:   ## iterates over the lines of the file
+            ## trailing , so print does not add an end-of-line char
+                   ## since 'line' already includes the end-of line.
 
-    for row in csvReader:
-        if row['commentID'] in comments:
-            comments[row['commentID']]['grammarErrorCode'] = row['spellingError']
+        if featureFileName['use'] == 'yes':
+            featureFile = open(featureFileName['featureFileName'], 'Ur')
+            csvFeatureReader = csv.DictReader(featureFile, delimiter=',', quotechar='"',skipinitialspace=True)
 
-    csvFile = open(lengthLuisFileName, 'Ur')
-    csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"')
-    lengthLuisKeys = list(csvReader.fieldnames)
-    lengthLuisKeys.remove("commentID")
+            featureKeys = list(csvFeatureReader.fieldnames)
+            featureKeys.remove("commentID")
+            allFeatureKeys.extend(featureKeys)
 
-    for row in csvReader:
-        if row['commentID'] in comments:
-            for key in lengthLuisKeys:
-                if row[key] != '�':
-                    comments[row['commentID']][key] = row[key]
-                else:
-                    comments[row['commentID']][key] = 'NA'
+            for row in csvFeatureReader:
+                if row['commentID'] in comments:
+                    for key in featureKeys:
+                        if row[key] != '�':
+                            comments[row['commentID']][key] = row[key]
+                        else:
+                            comments[row['commentID']][key] = 'NA'
+            featureFile.close()
 
-    csvFile = open(LMFeatureFileName, 'Ur')
-    csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"')
-    LMKeys = list(csvReader.fieldnames)
-    LMKeys.remove("commentID")
-
-    for row in csvReader:
-        if row['commentID'] in comments:
-            for key in LMKeys:
-                if row[key] != '�':
-                    comments[row['commentID']][key] = row[key]
-                else:
-                    comments[row['commentID']][key] = 'NA'
-
-    csvFile = open(LapataFeautreFileName, 'Ur')
-    csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"')
-    LapataKeys = list(csvReader.fieldnames)
-    LapataKeys.remove("commentID")
-
-    for row in csvReader:
-        if row['commentID'] in comments:
-            for key in LapataKeys:
-                if row[key] != '�':
-                    comments[row['commentID']][key] = row[key]
-                else:
-                    comments[row['commentID']][key] = 'NA'
+    csvFile.close()
 
 
     vwInputFileWriter =open(vwInputfile, 'w+')
@@ -237,41 +203,26 @@ def makeVWInputDataset(commentFile, articleRelevanceFile, conversationalRelevanc
     random.shuffle(comments)
 
     for (commentID, comment) in comments:
-        row = str(comment['editorsSelection'])  + " '" + str(comment['commentID'])  + ' | ' + 'AR:'+ str(comment['articleRelevance'])
+        row = str(comment['editorsSelection'])  + " '" + str(comment['commentID']) +' | '
+        row +=  'AR:'+ str(comment['articleRelevance'])
 
 
         if 'conversationalRelevance' in comment:
             row +=  ' CR:' + str( comment['conversationalRelevance'] )
 
-
-        row += ' | ' + 'Length:' + str(comment['length'])
-        # row.extend(['|',  'grammarError:' + str(comment['grammarError']) , 'spellingError:' + str(comment['spellingError'])])
-
-        row += ' | ' +   str(comment['grammarErrorCode']) + ' spellingError:' + str(comment['spellingError'])  # , 'spellingError:' + str(comment['spellingError'])])
-
-
-        row += ' | LengthLuis '
-
-        for key in lengthLuisKeys:
-            if comment[key] != 'NA':
-                row += key + ':' + str(comment[key]) + ' '
-
-        row += ' | LanguageModel '
-
-        for key in LMKeys:
-            if comment[key] != 'NA':
-                row += key + ':' + str(comment[key]) + ' '
-
-        row += ' | Lapata '
-
-        for key in LapataKeys:
-            if comment[key] != 'NA':
-                row += key + ':' + str(comment[key]) + ' '
+        for key in allFeatureKeys:
+            if key == 'spellingError':
+                row += ' ' + str(comment[key]) + ' '
+            elif comment[key] != 'NA':
+                row += ' ' + key + ':' + str(comment[key]) + ' '
 
         row += '\n'
         vwInputFileWriter.write(row)
 
     vwInputFileWriter.close()
+
+    allFeatureKeys.extend(['articleRelevance', 'conversationalRelevance'])
+
 
     return comments
 
@@ -401,7 +352,7 @@ def evaluatePrediction( commentFile, predictionFile, resultFile):
 
     with open(resultFile,'w+') as csvFile:
 
-        fieldnames = ['id', 'editorsSelection', 'prediction']
+        fieldnames = ['commentID', 'editorsSelection', 'prediction']
         writer = csv.DictWriter(csvFile, fieldnames=fieldnames, restval='0')
         writer.writeheader()
 
@@ -413,7 +364,7 @@ def evaluatePrediction( commentFile, predictionFile, resultFile):
         comment = {}
 
         for row in csvReader:
-            comment['id'] = row[1]
+            comment['commentID'] = row[1]
             comment['editorsSelection'] = comments[row[1]]['editorsSelection']
             comment['prediction'] = row[0]
             writer.writerow(comment)
@@ -484,4 +435,83 @@ def makeCommentsFiles(commentFile):
 
         csvFile = open(filename, 'w+')
         csvFile.write(commentBody)
+
+
+def makeGatherplotInput (commentFile, articleRelevanceFile, conversationalRelevanceFile, predictionFile, commentFeatureList, gatherplotFile):
+
+    csvFile = open(commentFile, 'Ur')
+    csvReader = csv.DictReader(csvFile, delimiter=',', quotechar='"')
+
+    comments = {}
+
+    allFeatureKeys = list(csvReader.fieldnames)
+
+    for row in csvReader:
+        comments[row['commentID']] = {}
+        for key in allFeatureKeys:
+            comments[row['commentID']][key] = row[key]
+
+    csvFile = open(articleRelevanceFile, 'Ur')
+    csvReader = csv.reader(csvFile, delimiter=',', quotechar='"')
+
+    for row in csvReader:
+        if row[0] in comments:
+            comments[row[0]]['articleRelevance'] = row[13]
+
+    csvFile = open(conversationalRelevanceFile, 'Ur')
+    csvReader = csv.reader(csvFile, delimiter=',', quotechar='"')
+
+    for row in csvReader:
+        if row[0] in comments:
+             comments[row[0]]['conversationalRelevance'] = row[13]
+
+    resultFile = open(predictionFile, 'Ur')
+    csvFeatureReader = csv.DictReader(resultFile, delimiter=',', quotechar='"',skipinitialspace=True)
+
+    featureKeys = ['prediction']
+    allFeatureKeys.extend(featureKeys)
+
+    for row in csvFeatureReader:
+        comments[row['commentID']]['prediction'] = row['prediction']
+    resultFile.close()
+
+    csvFile = open(commentFeatureList, 'Ur')
+    csvFeatureFileListReader = csv.DictReader(csvFile, delimiter=',', quotechar='"', skipinitialspace=True)
+
+    for featureFileName in csvFeatureFileListReader:   ## iterates over the lines of the file
+            ## trailing , so print does not add an end-of-line char
+                   ## since 'line' already includes the end-of line.
+
+        if featureFileName['use'] == 'yes':
+            featureFile = open(featureFileName['featureFileName'], 'Ur')
+            csvFeatureReader = csv.DictReader(featureFile, delimiter=',', quotechar='"',skipinitialspace=True)
+
+            featureKeys = list(csvFeatureReader.fieldnames)
+            featureKeys.remove("commentID")
+            allFeatureKeys.extend(featureKeys)
+
+            for row in csvFeatureReader:
+                if row['commentID'] in comments:
+                    for key in featureKeys:
+                        if row[key] != '�':
+                            comments[row['commentID']][key] = row[key]
+                        else:
+                            comments[row['commentID']][key] = 'NA'
+            featureFile.close()
+
+    csvFile.close()
+
+    comments = comments.items()
+
+    allFeatureKeys.extend(['articleRelevance', 'conversationalRelevance'])
+
+    with open(gatherplotFile,'w+') as csvFile:
+
+        fieldnames = allFeatureKeys
+        writer = csv.DictWriter(csvFile, fieldnames=fieldnames, restval='0')
+        writer.writeheader()
+
+        for comment in comments:
+            writer.writerow(comment[1])
+
 
