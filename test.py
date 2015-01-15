@@ -7,7 +7,7 @@ import os
 
 # Computes the length of comments
 # ComputeCommentLength("data/comments_study.csv", "data/comments_length_feature.csv")
-howManyPickForAnArticle("data/comments_study.csv", "data/articles.csv")
+# howManyPickForAnArticle("data/comments_study.csv", "data/articles.csv")
 # evaluatePrediction("smallData/comments_study.csv","smallData/prediction.vw","smallData/result.csv")
 
 # makeVWInputDataset(500, "data/comments_study.csv", "data/comment_study_article_relevance.csv", "data/comment_study_comment_conversational_relevance.csv", "data/input.vw")
@@ -28,3 +28,6 @@ howManyPickForAnArticle("data/comments_study.csv", "data/articles.csv")
 # evaluatePrediction("data/comments_study.csv","data/prediction.vw","data/result.csv")
 
 # makeCommentsFiles("data/comments_study.csv")
+
+makeGatherplotInput( "resultBackup/studyComments.csv", "resultBackup/comment_study_article_relevance.csv", "resultBackup/comment_study_comment_conversational_relevance.csv","data/result.csv","featureFileList.txt", "data/gatherplotFeatures.csv")
+
