@@ -436,7 +436,6 @@ def makeCommentsFiles(commentFile):
         csvFile = open(filename, 'w+')
         csvFile.write(commentBody)
 
-
 def makeGatherplotInput (commentFile, articleRelevanceFile, conversationalRelevanceFile, predictionFile, commentFeatureList, gatherplotFile):
 
     csvFile = open(commentFile, 'Ur')
